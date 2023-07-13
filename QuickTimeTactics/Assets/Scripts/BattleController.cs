@@ -6,20 +6,79 @@ public class BattleController : MonoBehaviour
 {
     public GameObject currentUnit;
     public TileMap tileMap;
-    // Start is called before the first frame update
-    void Start()
-    {
-        GameObject tileObject = tileMap.nodeGrid[0, 0].tileObject;
-        float combinedHeight = currentUnit.transform.localScale.y + tileObject.transform.localScale.y;
-        GameObject unitObject = Instantiate(currentUnit, new Vector3(0, combinedHeight, 0), Quaternion.identity);
 
-        Unit unit = unitObject.GetComponent<Unit>();
-        unit.tileX = 0;
-        unit.tileY = 0;
-        unit.map = tileMap;
-        tileMap.nodeGrid[0, 0].occupyingObject = unitObject;
+    public List<GameObject> playerUnits = new List<GameObject>();
+    public List<GameObject> enemyUnits = new List<GameObject>();
+    public List<GameObject> allUnits;
+    public List<GameObject> turnOrder;
+    public int currentUnitIndex;
+
+    public BattleBaseState currentState;
+    public readonly BattleStartState startState = new BattleStartState();
+    public readonly BattlePlayerState playerState = new BattlePlayerState();
+    public readonly BattleEnemyState enemyState = new BattleEnemyState();
+    public readonly BattleTransitionState transitionState = new BattleTransitionState();
+    public readonly BattleEndState endState = new BattleEndState();
+    private void Start()
+    {
         tileMap.battleController = this;
 
-        currentUnit = unitObject;
+        InstantiateUnits(playerUnits, 0);
+        InstantiateUnits(enemyUnits, tileMap.mapSizeY - 1);
+
+        CalculateTurnOrder();
+
+        TransitionToState(startState);
     }
+
+    private void InstantiateUnits(List<GameObject> units, int yPos)
+    {
+        for (int i = 0; i < units.Count; i++)
+        {
+            GameObject unitPrefab = units[i];
+            GameObject tileObject = tileMap.nodeGrid[i, yPos].tileObject;
+            float combinedHeight = unitPrefab.transform.localScale.y / 2 + tileObject.transform.localScale.y / 2;
+            GameObject unitObject = Instantiate(unitPrefab, new Vector3(i, combinedHeight, yPos), Quaternion.identity);
+            Unit unit = unitObject.GetComponent<Unit>();
+            unit.tileX = i;
+            unit.tileY = yPos;
+            unit.map = tileMap;
+            tileMap.nodeGrid[i, yPos].occupyingObject = unitObject;
+            units[i] = unitObject; // replace the prefab with the instantiated unit
+
+            allUnits.Add(unitObject);
+        }
+    }
+    // This method sorts the allUnits list based on speed and assigns the result to turnOrder:
+    private void CalculateTurnOrder()
+    {
+        turnOrder = new List<GameObject>(allUnits);
+        turnOrder.Sort((unit1, unit2) => unit2.GetComponent<Unit>().speed.CompareTo(unit1.GetComponent<Unit>().speed));
+        currentUnitIndex = 0;
+        currentUnit = turnOrder[currentUnitIndex];
+    }
+
+    // Call this method whenever a unit ends its turn:
+    public void EndTurn()
+    {
+        currentUnitIndex++;
+        if (currentUnitIndex >= turnOrder.Count)
+        {
+            // All units have had their turn, so recalculate the turn order:
+            CalculateTurnOrder();
+        }
+    }
+
+    private void Update()
+    {
+        currentState.Update(this);
+    }
+
+    public void TransitionToState(BattleBaseState state)
+    {
+        currentState = state;
+        Debug.Log("Transitioning to " + currentState);
+        currentState.EnterState(this);
+    }
+
 }

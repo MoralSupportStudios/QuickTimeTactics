@@ -380,8 +380,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd26e6245eab9344a935f8e493a1d76f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentUnit: {fileID: 6817929242556395048, guid: 4be88d4c58fadfd4c8cb0f7e5b0ea5bd, type: 3}
+  currentUnit: {fileID: 0}
   tileMap: {fileID: 1077487879}
+  playerUnits:
+  - {fileID: 6817929242556395048, guid: 59ad2cbaaecb52542b87b7b28922e007, type: 3}
+  enemyUnits:
+  - {fileID: 6817929242556395048, guid: 2a5f19501f234294eb3c3b434e9a6339, type: 3}
 --- !u!4 &1934319629
 Transform:
   m_ObjectHideFlags: 0
