@@ -9,5 +9,5 @@ public class TileType : MonoBehaviour
 
     public bool isWalkable = true;
     public float movementCost = 1;
-    public float elevation = 0;
+    public float elevation = 1;
 }
