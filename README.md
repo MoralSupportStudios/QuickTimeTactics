@@ -21,3 +21,5 @@ Inspiration: LucasArts' Gladius
 ## Acknowledgments
 This section will be updated to acknowledge any third-party resources used in the project.
 
+## Github Pages
+I am also trying to learn this
