@@ -14,12 +14,19 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Activate Unity 🟢
+        id: activate
+        uses: game-ci/unity-activate@v2
+        with:
+          personalLicenseFile: ${{ secrets.UNITY_LICENSE }}
+      
       - name: Build 🏗️
         id: build
         uses: game-ci/unity-builder@v2
         with:
           unityVersion: 2021.3.13f1  # Replace with your Unity version
           targetPlatform: WebGL
+          activatedLicenseFile: ${{ steps.activate.outputs.activatedLicenseFile }}
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.1
