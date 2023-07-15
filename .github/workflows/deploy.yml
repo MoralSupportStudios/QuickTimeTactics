@@ -10,28 +10,32 @@ jobs:
 
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v2.3.1 # If you're using actions/checkout@v2 you must set persist-credentials to false in most cases for the deployment to work correctly.
+        uses: actions/checkout@v2.3.1
         with:
           persist-credentials: false
 
-      - name: Activate Unity 🟢
-        id: activate
-        uses: game-ci/unity-activate@v2
+      - name: Cache large files
+        uses: actions/cache@v2
         with:
-          personalLicenseFile: ${{ secrets.UNITY_LICENSE }}
-      
-      - name: Build 🏗️
+          path: Library
+          key: Library
+
+      - name: Activate Unity license
+        uses: webbertakken/unity-activate@v2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+
+      - name: Build project
         id: build
         uses: game-ci/unity-builder@v2
         with:
-          unityVersion: 2021.3.13f1  # Replace with your Unity version
+          unityVersion: 2021.3.13f1
           targetPlatform: WebGL
-          activatedLicenseFile: ${{ steps.activate.outputs.activatedLicenseFile }}
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.1
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
-          branch: gh-pages # The branch the action should deploy to.
-          folder: build/webgl # The folder the action should deploy.
-          clean: true # Automatically remove old files from the deploy branch
+          branch: gh-pages
+          folder: build/webgl
+          clean: true
