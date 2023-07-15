@@ -1,0 +1,30 @@
+name: Build and Deploy
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2.3.1 # If you're using actions/checkout@v2 you must set persist-credentials to false in most cases for the deployment to work correctly.
+        with:
+          persist-credentials: false
+
+      - name: Build 🏗️
+        id: build
+        uses: game-ci/unity-builder@v2
+        with:
+          unityVersion: 2021.3.13f1  # Replace with your Unity version
+          targetPlatform: WebGL
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@4.1.1
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: build/webgl # The folder the action should deploy.
+          clean: true # Automatically remove old files from the deploy branch
